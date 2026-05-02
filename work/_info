@@ -1,0 +1,240 @@
+m255
+K3
+13
+cModel Technology
+dD:\Altera
+Pmem_pkg
+Z0 DPx4 ieee 11 numeric_std 0 22 O3PF8EB`?j9=z7KT`fn941
+Z1 DPx3 std 6 textio 0 22 5>J:;AW>W0[[dW0I6EN1Q0
+Z2 DPx4 ieee 14 std_logic_1164 0 22 5=aWaoGZSMWIcH0i^f`XF1
+Z3 w1777697547
+Z4 dC:\Users\User\Desktop\Segundoproyecto
+Z5 8C:\Users\User\Desktop\Segundoproyecto\mem_pkg.vhd
+Z6 FC:\Users\User\Desktop\Segundoproyecto\mem_pkg.vhd
+l0
+L10
+VMZG4PiGF3ckBo><fkBTAc0
+Z7 OV;C;10.1d;51
+32
+b1
+Z8 !s108 1777699540.758000
+Z9 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:\Users\User\Desktop\Segundoproyecto\mem_pkg.vhd|
+Z10 !s107 C:\Users\User\Desktop\Segundoproyecto\mem_pkg.vhd|
+Z11 o-work work -2002 -explicit -O0
+Z12 tExplicit 1
+!s100 OjPjaW:b5O3oS8``1]j3=2
+!i10b 1
+Bbody
+Z13 DPx4 work 7 mem_pkg 0 22 MZG4PiGF3ckBo><fkBTAc0
+Z14 DPx4 ieee 11 numeric_std 0 22 O3PF8EB`?j9=z7KT`fn941
+R1
+R2
+l0
+L110
+VTHKco=f28]oaVb6KEJTLA1
+R7
+32
+R8
+R9
+R10
+R11
+R12
+nbody
+!s100 DVm_P?Ole>0m9S71m>=EU0
+!i10b 1
+Ememory_controller
+Z15 w1777698007
+R13
+R14
+R1
+R2
+R4
+Z16 8C:/Users/User/Desktop/Segundoproyecto/memory_controller.vhd
+Z17 FC:/Users/User/Desktop/Segundoproyecto/memory_controller.vhd
+l0
+L9
+VJ^lTEf^Z`h:22J_dlkRm_2
+R7
+32
+Z18 !s108 1777699541.260000
+Z19 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/User/Desktop/Segundoproyecto/memory_controller.vhd|
+Z20 !s107 C:/Users/User/Desktop/Segundoproyecto/memory_controller.vhd|
+R11
+R12
+!s100 :gR>hi8@<X7]SgZ@VI:h@1
+!i10b 1
+Artl
+R13
+R14
+R1
+R2
+DEx4 work 17 memory_controller 0 22 J^lTEf^Z`h:22J_dlkRm_2
+l46
+L30
+Vn9E0KmC@5=i[bobTPoSOD0
+R7
+32
+R18
+R19
+R20
+R11
+R12
+!s100 ZhL^D]:iARgEK:d]EhbmN2
+!i10b 1
+Ememory_system_top
+Z21 w1777697664
+R13
+R14
+R1
+R2
+R4
+Z22 8C:/Users/User/Desktop/Segundoproyecto/memory_system_top.vhd
+Z23 FC:/Users/User/Desktop/Segundoproyecto/memory_system_top.vhd
+l0
+L11
+VaodO6>haCo=nDEQQz_;;i3
+R7
+32
+Z24 !s108 1777699541.565000
+Z25 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/User/Desktop/Segundoproyecto/memory_system_top.vhd|
+Z26 !s107 C:/Users/User/Desktop/Segundoproyecto/memory_system_top.vhd|
+R11
+R12
+!s100 LjS`aJF6Nmj=d:0J6U:b40
+!i10b 1
+Astructural
+R13
+R14
+R1
+R2
+Z27 DEx4 work 17 memory_system_top 0 22 aodO6>haCo=nDEQQz_;;i3
+l44
+L26
+VN5[UKNVL3DLRIZ;Y_HK9S3
+R7
+32
+R24
+R25
+R26
+R11
+R12
+!s100 ?B^93aK6I[MBnEGeaXh@U0
+!i10b 1
+Eram_sincrona
+Z28 w1777697604
+R13
+R14
+R1
+R2
+R4
+Z29 8C:/Users/User/Desktop/Segundoproyecto/ram_sincrona.vhd
+Z30 FC:/Users/User/Desktop/Segundoproyecto/ram_sincrona.vhd
+l0
+L11
+V4JIV<MLO23Wbe0kZ^H]9[0
+R7
+32
+Z31 !s108 1777699541.799000
+Z32 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/User/Desktop/Segundoproyecto/ram_sincrona.vhd|
+Z33 !s107 C:/Users/User/Desktop/Segundoproyecto/ram_sincrona.vhd|
+R11
+R12
+!s100 <D<W=GC9EPJ]NN5ee]YXk0
+!i10b 1
+Artl
+R13
+R14
+R1
+R2
+DEx4 work 12 ram_sincrona 0 22 4JIV<MLO23Wbe0kZ^H]9[0
+l37
+L27
+Vj8FN>a5eVfodU61Jd46>`1
+R7
+32
+R31
+R32
+R33
+R11
+R12
+!s100 Emd[>Hf<8;BH4<CcbH>i[1
+!i10b 1
+Erom_sync
+Z34 w1777697579
+R13
+R14
+R1
+R2
+R4
+Z35 8C:/Users/User/Desktop/Segundoproyecto/rom_sync.vhd
+Z36 FC:/Users/User/Desktop/Segundoproyecto/rom_sync.vhd
+l0
+L11
+V0Wj3<aV^37H6C>jc=ZBAU0
+R7
+32
+Z37 !s108 1777699542.083000
+Z38 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:/Users/User/Desktop/Segundoproyecto/rom_sync.vhd|
+Z39 !s107 C:/Users/User/Desktop/Segundoproyecto/rom_sync.vhd|
+R11
+R12
+!s100 Eo52TZW[05GOfM3[bjjIh2
+!i10b 1
+Artl
+R13
+R14
+R1
+R2
+DEx4 work 8 rom_sync 0 22 0Wj3<aV^37H6C>jc=ZBAU0
+l51
+L24
+V3RPk5L50Zbl68jHRN656o2
+R7
+32
+R37
+R38
+R39
+R11
+R12
+!s100 ]Z?^9ib^Wg7liz?>_<D1T2
+!i10b 1
+Etb_memory_system
+Z40 w1777699788
+R13
+R14
+R1
+R2
+R4
+Z41 8C:\Users\User\Desktop\Segundoproyecto\tb_memory_system.vhd
+Z42 FC:\Users\User\Desktop\Segundoproyecto\tb_memory_system.vhd
+l0
+L9
+VHM5zTMEaPGoZ<6nXz]][R3
+!s100 J38a78^MiV7RlCg87V6Ko2
+R7
+32
+!i10b 1
+Z43 !s108 1777699799.225000
+Z44 !s90 -reportprogress|300|-work|work|-2002|-explicit|C:\Users\User\Desktop\Segundoproyecto\tb_memory_system.vhd|
+Z45 !s107 C:\Users\User\Desktop\Segundoproyecto\tb_memory_system.vhd|
+R11
+R12
+Asim
+R27
+R13
+R14
+R1
+R2
+DEx4 work 16 tb_memory_system 0 22 HM5zTMEaPGoZ<6nXz]][R3
+l39
+L12
+VXIl_RF9`[Z4W7gejoz[FI2
+!s100 j^1c>0QHf`MRJbTGX;Al92
+R7
+32
+!i10b 1
+R43
+R44
+R45
+R11
+R12
