@@ -19,10 +19,7 @@ entity memory_system_top is
     re       : in  std_logic;
     -- Salidas
     data_out : out data_word;
-    done     : out std_logic;
-	 HEX0 : out std_logic_vector(6 downto 0);
-    HEX1 : out std_logic_vector(6 downto 0)
-	 
+    done     : out std_logic
   );
 end entity memory_system_top;
 
@@ -43,9 +40,6 @@ architecture structural of memory_system_top is
 
   signal data_out_s    : data_word;
   signal done_s        : std_logic;
-  
-  signal nibble_high : data_word;
-  signal nibble_low  : data_word;
 
 begin
 
@@ -105,21 +99,6 @@ begin
       done         => done_s
     );
 
-	 
-	 nibble_high <= x"3" & data_out_s(7 downto 4);  -- dígito alto
-    nibble_low  <= x"3" & data_out_s(3 downto 0);  -- dígito bajo
-
-    u_hex0 : component dec_7seg
-  port map(
-    bcd => to_integer(unsigned(data_out_s(3 downto 0))),
-    seg => HEX0
-  );
-
-    u_hex1 : component dec_7seg
-  port map(
-    bcd => to_integer(unsigned(data_out_s(7 downto 4))),
-    seg => HEX1
-  );
   -- -------------------------------------------------------
   -- Salidas del top-level
   -- -------------------------------------------------------

@@ -24,7 +24,7 @@ end entity rom_sync;
 architecture rtl of rom_sync is
 
   -- Contenido inicial de la ROM (16 posiciones)
-  constant rom_mem : mem_t := (
+  constant rom_mem : mem_array := (
     0  => x"AA",  -- 1010 1010
     1  => x"55",  -- 0101 0101
     2  => x"F0",  -- 1111 0000

@@ -1,0 +1,25 @@
+# Carpetas de Quartus
+db/
+incremental_db/
+simulation/
+output_files/
+
+# Archivos temporales
+*.rpt
+*.summary
+*.qws
+*.qdf
+*.smsg
+*.done
+*.jdi
+*.bak
+*.log
+
+# Archivos bloqueados
+*.flock
+
+# Archivos de compilación
+*.sof
+*.pof
+*.hex
+*.bin

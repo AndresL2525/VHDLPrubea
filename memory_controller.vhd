@@ -1,3 +1,10 @@
+-- ============================================================
+-- memory_controller.vhd
+-- FSM Moore: copia ROM->RAM y permite acceso externo
+-- Estados: IDLE, READ_ROM, WAIT_ROM, WAIT_ROM2,
+--          WRITE_RAM, READ_RAM, DONE
+-- ============================================================
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -29,7 +36,7 @@ architecture rtl of memory_controller is
   type state_type is (S_IDLE, S_READ_ROM, S_WAIT_ROM, S_WAIT_ROM2, S_WRITE_RAM, S_READ_RAM, S_DONE);
 
   signal state        : state_type := S_IDLE;
-  signal addr_counter : integer range 0 to MEM_DEPTH-1 := 0;
+  signal addr_counter : integer range 0 to 2**ADDR_WIDTH-1 := 0;
 
   signal s_rom_re      : std_logic := '0';
   signal s_ram_we      : std_logic := '0';
@@ -97,7 +104,7 @@ begin
             clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
             s_ram_re   <= '1';
             s_ram_addr <= std_logic_vector(to_unsigned(addr_counter, ADDR_WIDTH));
-            if addr_counter = MEM_DEPTH - 1 then
+            if addr_counter =  2**ADDR_WIDTH - 1 then
               state <= S_DONE;
             else
               addr_counter <= addr_counter + 1;

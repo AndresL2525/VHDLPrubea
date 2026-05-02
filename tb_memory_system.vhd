@@ -22,7 +22,7 @@ architecture sim of tb_memory_system is
   signal data_out_tb : data_word;
   signal done_tb     : std_logic;
 
-  constant rom_expected : mem_array := (
+  constant rom_expected : mem_t := (
     0  => x"AA", 1  => x"55", 2  => x"F0", 3  => x"0F",
     4  => x"FF", 5  => x"00", 6  => x"A5", 7  => x"5A",
     8  => x"12", 9  => x"34", 10 => x"56", 11 => x"78",
