@@ -1,6 +1,3 @@
--- =============================================================
--- memory_controller.vhd  
--- =============================================================
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -29,7 +26,7 @@ end entity memory_controller;
 
 architecture rtl of memory_controller is
 
-  type state_type is (S_IDLE, S_READ_ROM, S_WRITE_RAM, S_READ_RAM, S_DONE);
+  type state_type is (S_IDLE, S_READ_ROM, S_WAIT_ROM, S_WAIT_ROM2, S_WRITE_RAM, S_READ_RAM, S_DONE);
 
   signal state        : state_type := S_IDLE;
   signal addr_counter : integer range 0 to MEM_DEPTH-1 := 0;
@@ -40,7 +37,7 @@ architecture rtl of memory_controller is
   signal s_rom_addr    : addr_word := (others => '0');
   signal s_ram_addr    : addr_word := (others => '0');
   signal s_ram_data_in : data_word := (others => '0');
-  signal done_reg      : std_logic := '0';  -- renombrado de s_done
+  signal done_reg      : std_logic := '0';
   signal rom_data_reg  : data_word := (others => '0');
 
 begin
@@ -67,13 +64,27 @@ begin
             done_reg     <= '0';
             state        <= S_READ_ROM;
 
+          -- Ciclo 1: presenta direccion, activa re
           when S_READ_ROM =>
             clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
             s_rom_re   <= '1';
             s_rom_addr <= std_logic_vector(to_unsigned(addr_counter, ADDR_WIDTH));
-            rom_data_reg <= rom_data;
-            state      <= S_WRITE_RAM;
+            state      <= S_WAIT_ROM;
 
+          -- Ciclo 2: ROM registra direccion en flanco, dato aun no valido
+          when S_WAIT_ROM =>
+            clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
+            s_rom_re   <= '1';
+            s_rom_addr <= std_logic_vector(to_unsigned(addr_counter, ADDR_WIDTH));
+            state      <= S_WAIT_ROM2;
+
+          -- Ciclo 3: dato ROM valido en la salida, capturamos
+          when S_WAIT_ROM2 =>
+            clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
+            rom_data_reg <= rom_data;  -- ahora si es valido
+            state        <= S_WRITE_RAM;
+
+          -- Ciclo 4: escribe en RAM
           when S_WRITE_RAM =>
             clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
             s_ram_we      <= '1';
@@ -81,6 +92,7 @@ begin
             s_ram_data_in <= rom_data_reg;
             state         <= S_READ_RAM;
 
+          -- Ciclo 5: lee RAM para verificacion, avanza
           when S_READ_RAM =>
             clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
             s_ram_re   <= '1';
@@ -115,7 +127,7 @@ begin
   ram_re      <= s_ram_re;
   ram_addr    <= s_ram_addr;
   ram_data_in <= s_ram_data_in;
-  done        <= done_reg;       -- usa done_reg en lugar de s_done
+  done        <= done_reg;
   data_out    <= ram_data_out;
 
 end architecture rtl;

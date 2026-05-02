@@ -29,10 +29,10 @@ architecture sim of tb_memory_system is
     12 => x"9A", 13 => x"BC", 14 => x"DE", 15 => x"EF"
   );
 
-  procedure wait_cycles(n : integer) is
+  procedure wait_cycles(n : integer; signal clk : in std_logic) is
   begin
     for i in 1 to n loop
-      wait until rising_edge(clk_tb);
+      wait until rising_edge(clk);
     end loop;
   end procedure;
 
@@ -57,35 +57,44 @@ begin
   end process;
 
   stimulus : process
+
+    -- Lee una posicion de RAM y devuelve el dato observado
+    -- Espera 3 ciclos para cubrir latencia de RAM + controlador
+    procedure leer_ram(addr_val : in integer) is
+    begin
+      addr_tb <= std_logic_vector(to_unsigned(addr_val, ADDR_WIDTH));
+      re_tb   <= '1';
+      wait_cycles(1, clk_tb);  -- ciclo para que addr llegue a RAM
+      wait_cycles(1, clk_tb);  -- ciclo de latencia RAM (dato capturado)
+      wait_cycles(1, clk_tb);  -- ciclo extra de estabilizacion
+      re_tb <= '0';
+    end procedure;
+
   begin
 
     -- D. Reset inicial
     report "=== D. Reset inicial ===" severity note;
     rst_tb <= '1';
-    wait_cycles(3);
+    wait_cycles(3, clk_tb);
     rst_tb <= '0';
     report "=== Reset liberado ===" severity note;
 
     -- A. Esperar copia automatica ROM -> RAM
     report "=== A. Esperando copia ROM->RAM ===" severity note;
     wait until done_tb = '1';
-    wait_cycles(2);
+    wait_cycles(3, clk_tb);  -- estabilizacion post-done
     report "=== Copia completa. done=1 ===" severity note;
 
-    -- C. Lectura desde RAM y verificacion
+    -- C. Verificar datos copiados en RAM
     report "=== C. Verificando datos en RAM ===" severity note;
-    re_tb <= '1';
-    we_tb <= '0';
 
     for i in 0 to MEM_DEPTH-1 loop
-      addr_tb <= std_logic_vector(to_unsigned(i, ADDR_WIDTH));
-      wait_cycles(2);
+      leer_ram(i);
       assert data_out_tb = rom_expected(i)
         report "FALLO RAM pos " & integer'image(i)
         severity error;
     end loop;
 
-    re_tb <= '0';
     report "=== Lectura RAM OK ===" severity note;
 
     -- B. Escritura externa manual en RAM[0]
@@ -93,25 +102,23 @@ begin
     addr_tb    <= x"0";
     data_in_tb <= x"C3";
     we_tb      <= '1';
-    wait_cycles(1);
-    we_tb      <= '0';
-    wait_cycles(1);
+    wait_cycles(2, clk_tb);  -- 2 ciclos para asegurar escritura
+    we_tb <= '0';
+    wait_cycles(1, clk_tb);
 
-    re_tb   <= '1';
-    addr_tb <= x"0";
-    wait_cycles(2);
+    -- Leer de vuelta RAM[0]
+    leer_ram(0);
     assert data_out_tb = x"C3"
       report "FALLO escritura manual RAM[0]"
       severity error;
-    re_tb <= '0';
     report "=== Escritura/lectura manual OK ===" severity note;
 
     -- D. Reset en caliente
     report "=== D. Reset en caliente ===" severity note;
     rst_tb <= '1';
-    wait_cycles(2);
+    wait_cycles(2, clk_tb);
     rst_tb <= '0';
-    wait_cycles(1);
+    wait_cycles(1, clk_tb);
     assert done_tb = '0'
       report "FALLO: done debe ser 0 tras reset"
       severity error;
