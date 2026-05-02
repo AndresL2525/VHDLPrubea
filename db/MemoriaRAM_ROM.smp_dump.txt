@@ -1,10 +1,10 @@
 
 State Machine - |memory_system_top|memory_controller:u_ctrl|state
-Name state.S_DONE state.S_READ_RAM state.S_WRITE_RAM state.S_WAIT_ROM2 state.S_WAIT_ROM state.S_READ_ROM state.S_IDLE 
-state.S_IDLE 0 0 0 0 0 0 0 
-state.S_READ_ROM 0 0 0 0 0 1 1 
-state.S_WAIT_ROM 0 0 0 0 1 0 1 
-state.S_WAIT_ROM2 0 0 0 1 0 0 1 
-state.S_WRITE_RAM 0 0 1 0 0 0 1 
-state.S_READ_RAM 0 1 0 0 0 0 1 
-state.S_DONE 1 0 0 0 0 0 1 
+Name state.ST_DONE state.READ_RAM state.WRITE_RAM state.WAIT_ROM2 state.WAIT_ROM state.READ_ROM state.IDLE 
+state.IDLE 0 0 0 0 0 0 0 
+state.READ_ROM 0 0 0 0 0 1 1 
+state.WAIT_ROM 0 0 0 0 1 0 1 
+state.WAIT_ROM2 0 0 0 1 0 0 1 
+state.WRITE_RAM 0 0 1 0 0 0 1 
+state.READ_RAM 0 1 0 0 0 0 1 
+state.ST_DONE 1 0 0 0 0 0 1 

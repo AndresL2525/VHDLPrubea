@@ -3,8 +3,9 @@
 -- FSM Moore: copia ROM->RAM y permite acceso externo
 -- Estados: IDLE, READ_ROM, WAIT_ROM, WAIT_ROM2,
 --          WRITE_RAM, READ_RAM, DONE
+-- Universidad del Cauca
+-- Andre Luna
 -- ============================================================
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -12,129 +13,162 @@ use work.mem_pkg.all;
 
 entity memory_controller is
   port (
-    clk          : in  std_logic;
-    rst          : in  std_logic;
-    rom_re       : out std_logic;
-    rom_addr     : out addr_word;
-    rom_data     : in  data_word;
-    ram_we       : out std_logic;
-    ram_re       : out std_logic;
-    ram_addr     : out addr_word;
-    ram_data_in  : out data_word;
-    ram_data_out : in  data_word;
-    ext_we       : in  std_logic;
-    ext_re       : in  std_logic;
-    ext_addr     : in  addr_word;
-    ext_data_in  : in  data_word;
-    data_out     : out data_word;
-    done         : out std_logic
+    clk      : in  std_logic;
+    rst      : in  std_logic;
+    addr     : in  addr_t;
+    data_in  : in  word_t;
+    we       : in  std_logic;
+    re       : in  std_logic;
+    data_out : out word_t;
+    done     : out std_logic
   );
 end entity memory_controller;
 
 architecture rtl of memory_controller is
 
-  type state_type is (S_IDLE, S_READ_ROM, S_WAIT_ROM, S_WAIT_ROM2, S_WRITE_RAM, S_READ_RAM, S_DONE);
+  -- Estados de la FSM
+  type state_t is (IDLE, READ_ROM, WAIT_ROM, WAIT_ROM2,
+                   WRITE_RAM, READ_RAM, ST_DONE);
+  signal state : state_t := IDLE;
 
-  signal state        : state_type := S_IDLE;
-  signal addr_counter : integer range 0 to 2**ADDR_WIDTH-1 := 0;
+  -- Contador de direccion interno
+  signal addr_cnt : integer range 0 to 2**ADDR_WIDTH-1 := 0;
 
-  signal s_rom_re      : std_logic := '0';
-  signal s_ram_we      : std_logic := '0';
-  signal s_ram_re      : std_logic := '0';
-  signal s_rom_addr    : addr_word := (others => '0');
-  signal s_ram_addr    : addr_word := (others => '0');
-  signal s_ram_data_in : data_word := (others => '0');
-  signal done_reg      : std_logic := '0';
-  signal rom_data_reg  : data_word := (others => '0');
+  -- Señales internas ROM
+  signal rom_re   : std_logic := '0';
+  signal rom_addr : addr_t    := (others => '0');
+  signal rom_data : word_t;
+
+  -- Señales internas RAM
+  signal ram_we   : std_logic := '0';
+  signal ram_re   : std_logic := '0';
+  signal ram_addr : addr_t    := (others => '0');
+  signal ram_din  : word_t    := (others => '0');
+  signal ram_dout : word_t;
+
+  -- Registro para capturar dato ROM
+  signal rom_data_reg : word_t    := (others => '0');
+  signal done_reg     : std_logic := '0';
 
 begin
 
+  -- Instancia ROM
+  u_rom : rom_sync
+    port map (
+      clk      => clk,
+      re       => rom_re,
+      addr     => rom_addr,
+      data_out => rom_data
+    );
+
+  -- Instancia RAM
+  u_ram : ram_sincrona
+    generic map (
+      DATA_WIDTH => 8,
+      ADDR_WIDTH => 4,
+      RDW_MODE   => "READ_FIRST"
+    )
+    port map (
+      clk      => clk,
+      rd_en    => ram_re,
+      wr_en    => ram_we,
+      addr     => ram_addr,
+      data_in  => ram_din,
+      data_out => ram_dout
+    );
+
+  -- FSM
   process(clk)
   begin
     if rising_edge(clk) then
       if rst = '1' then
-        state         <= S_IDLE;
-        addr_counter  <= 0;
-        done_reg      <= '0';
-        clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
-        s_rom_addr    <= (others => '0');
-        s_ram_addr    <= (others => '0');
-        s_ram_data_in <= (others => '0');
-        rom_data_reg  <= (others => '0');
+        state    <= IDLE;
+        addr_cnt <= 0;
+        done_reg <= '0';
+        rom_re   <= '0';
+        ram_we   <= '0';
+        ram_re   <= '0';
+        rom_addr <= (others => '0');
+        ram_addr <= (others => '0');
+        ram_din  <= (others => '0');
 
       else
         case state is
 
-          when S_IDLE =>
-            clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
-            addr_counter <= 0;
-            done_reg     <= '0';
-            state        <= S_READ_ROM;
+          when IDLE =>
+            rom_re   <= '0';
+            ram_we   <= '0';
+            ram_re   <= '0';
+            addr_cnt <= 0;
+            done_reg <= '0';
+            state    <= READ_ROM;
 
-          -- Ciclo 1: presenta direccion, activa re
-          when S_READ_ROM =>
-            clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
-            s_rom_re   <= '1';
-            s_rom_addr <= std_logic_vector(to_unsigned(addr_counter, ADDR_WIDTH));
-            state      <= S_WAIT_ROM;
+          -- Ciclo 1: presenta direccion a ROM
+          when READ_ROM =>
+            rom_re   <= '1';
+            ram_we   <= '0';
+            ram_re   <= '0';
+            rom_addr <= std_logic_vector(
+                          to_unsigned(addr_cnt, ADDR_WIDTH));
+            state    <= WAIT_ROM;
 
-          -- Ciclo 2: ROM registra direccion en flanco, dato aun no valido
-          when S_WAIT_ROM =>
-            clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
-            s_rom_re   <= '1';
-            s_rom_addr <= std_logic_vector(to_unsigned(addr_counter, ADDR_WIDTH));
-            state      <= S_WAIT_ROM2;
+          -- Ciclo 2: ROM registra direccion
+          when WAIT_ROM =>
+            rom_re   <= '1';
+            ram_we   <= '0';
+            ram_re   <= '0';
+            state    <= WAIT_ROM2;
 
-          -- Ciclo 3: dato ROM valido en la salida, capturamos
-          when S_WAIT_ROM2 =>
-            clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
-            rom_data_reg <= rom_data;  -- ahora si es valido
-            state        <= S_WRITE_RAM;
+          -- Ciclo 3: dato ROM valido, capturar
+          when WAIT_ROM2 =>
+            rom_re       <= '0';
+            ram_we       <= '0';
+            ram_re       <= '0';
+            rom_data_reg <= rom_data;
+            state        <= WRITE_RAM;
 
-          -- Ciclo 4: escribe en RAM
-          when S_WRITE_RAM =>
-            clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
-            s_ram_we      <= '1';
-            s_ram_addr    <= std_logic_vector(to_unsigned(addr_counter, ADDR_WIDTH));
-            s_ram_data_in <= rom_data_reg;
-            state         <= S_READ_RAM;
+          -- Ciclo 4: escribir dato ROM en RAM
+          when WRITE_RAM =>
+            rom_re   <= '0';
+            ram_we   <= '1';
+            ram_re   <= '0';
+            ram_addr <= std_logic_vector(
+                          to_unsigned(addr_cnt, ADDR_WIDTH));
+            ram_din  <= rom_data_reg;
+            state    <= READ_RAM;
 
-          -- Ciclo 5: lee RAM para verificacion, avanza
-          when S_READ_RAM =>
-            clear_control_signals(s_rom_re, s_ram_we, s_ram_re);
-            s_ram_re   <= '1';
-            s_ram_addr <= std_logic_vector(to_unsigned(addr_counter, ADDR_WIDTH));
-            if addr_counter =  2**ADDR_WIDTH - 1 then
-              state <= S_DONE;
+          -- Ciclo 5: verificar, avanzar o terminar
+          when READ_RAM =>
+            rom_re   <= '0';
+            ram_we   <= '0';
+            ram_re   <= '1';
+            ram_addr <= std_logic_vector(
+                          to_unsigned(addr_cnt, ADDR_WIDTH));
+            if addr_cnt = 2**ADDR_WIDTH - 1 then
+              state <= ST_DONE;
             else
-              addr_counter <= addr_counter + 1;
-              state        <= S_READ_ROM;
+              addr_cnt <= addr_cnt + 1;
+              state    <= READ_ROM;
             end if;
 
-          when S_DONE =>
-            done_reg      <= '1';
-            s_ram_we      <= ext_we;
-            s_ram_re      <= ext_re;
-            s_ram_addr    <= ext_addr;
-            s_ram_data_in <= ext_data_in;
-            s_rom_re      <= '0';
-            s_rom_addr    <= (others => '0');
+          -- Copia completa, acceso externo habilitado
+          when ST_DONE =>
+            done_reg <= '1';
+            ram_we   <= we;
+            ram_re   <= re;
+            ram_addr <= addr;
+            ram_din  <= data_in;
+            rom_re   <= '0';
 
           when others =>
-            state <= S_IDLE;
+            state <= IDLE;
 
         end case;
       end if;
     end if;
   end process;
 
-  rom_re      <= s_rom_re;
-  rom_addr    <= s_rom_addr;
-  ram_we      <= s_ram_we;
-  ram_re      <= s_ram_re;
-  ram_addr    <= s_ram_addr;
-  ram_data_in <= s_ram_data_in;
-  done        <= done_reg;
-  data_out    <= ram_data_out;
+  done     <= done_reg;
+  data_out <= ram_dout;
 
 end architecture rtl;

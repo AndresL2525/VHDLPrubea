@@ -15,11 +15,11 @@ architecture sim of tb_memory_system is
 
   signal clk_tb      : std_logic := '0';
   signal rst_tb      : std_logic := '1';
-  signal addr_tb     : addr_word := (others => '0');
-  signal data_in_tb  : data_word := (others => '0');
+  signal addr_tb     : addr_t := (others => '0');
+  signal data_in_tb  : word_t := (others => '0');
   signal we_tb       : std_logic := '0';
   signal re_tb       : std_logic := '0';
-  signal data_out_tb : data_word;
+  signal data_out_tb : word_t;
   signal done_tb     : std_logic;
 
   constant rom_expected : mem_t := (
@@ -88,7 +88,7 @@ begin
     -- C. Verificar datos copiados en RAM
     report "=== C. Verificando datos en RAM ===" severity note;
 
-    for i in 0 to MEM_DEPTH-1 loop
+    for i in 0 to 2**ADDR_WIDTH-1 loop
       leer_ram(i);
       assert data_out_tb = rom_expected(i)
         report "FALLO RAM pos " & integer'image(i)
