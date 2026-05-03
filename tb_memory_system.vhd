@@ -6,8 +6,8 @@
 --   B. Escritura en RAM (dato llega al display)
 --   C. Lectura desde RAM (display muestra dato correcto)
 --   D. Reset del sistema (inicial y en caliente)
--- Universidad del Cauca - SENA Ficha 3229446
--- Andre Lopez - Mayo 2026
+-- Universidad del Cauca 
+-- Andre Luna
 -- =============================================================
 library ieee;
 use ieee.std_logic_1164.all;
