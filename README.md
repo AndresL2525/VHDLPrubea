@@ -54,10 +54,10 @@ El diseño es completamente modular: incluye un paquete de tipos, componentes in
 
 ---
 
-## 📂 Estructura del repositorio
+## 📂 Estructura del repositorio 
+'''
 VHDLPrubea/
 ├── README.md
-├── .gitignore
 ├── dec_7seg.vhd # Decodificador de 7 segmentos
 ├── divisor_frecuencia.vhd # Divisor de 50 MHz a 1 Hz
 ├── mem_pkg.vhd # Paquete con constantes y tipos
@@ -66,3 +66,4 @@ VHDLPrubea/
 ├── ram_sincrona.vhd # RAM síncrona de 16x8
 ├── rom_sync.vhd # ROM síncrona de 16x8
 └── tb_memory_system.vhd # Testbench avanzado
+'''
