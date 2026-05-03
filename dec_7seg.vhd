@@ -7,7 +7,7 @@
 --               Usa CASE dentro de PROCESS, igual que los
 --               ejemplos 6.7 y el ejemplo de Rapid Prototyping.
 -- Entradas:
---   bcd : dígito decimal (0 a 9)
+--   bcd : dígito decimal (0 a 15)
 -- Salidas:
 --   seg : patrón 7 segmentos activo en bajo
 -- ============================================================
@@ -17,7 +17,7 @@ USE IEEE.STD_LOGIC_1164.ALL;
 
 ENTITY dec_7seg IS
     PORT (
-        bcd : IN  INTEGER RANGE 0 TO 9;
+        bcd : IN  INTEGER RANGE 0 TO 15;
         seg : OUT STD_LOGIC_VECTOR(6 DOWNTO 0)
     );
 END dec_7seg;
@@ -41,6 +41,12 @@ BEGIN
             WHEN 7 => seg <= "1111000"; -- 7
             WHEN 8 => seg <= "0000000"; -- 8
             WHEN 9 => seg <= "0010000"; -- 9
+				WHEN 10 => seg <= "0001000"; -- A
+				WHEN 11 => seg <= "0000011"; -- B
+				WHEN 12 => seg <= "1000110"; -- C
+				WHEN 13 => seg <= "0100001"; -- D
+				WHEN 14 => seg <= "0000110"; -- E
+				WHEN 15 => seg <= "0001110"; -- F
             WHEN OTHERS => seg <= "1111111"; -- apagado
         END CASE;
     END PROCESS;

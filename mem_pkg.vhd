@@ -1,95 +1,94 @@
--- ============================================================
--- mem_pkg.vhd
--- Paquete central del sistema con memorias ROM y RAM
--- Universidad del Cauca 
--- Andre Luna
--- ============================================================
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+-- =============================================================
+-- Archivo : mem_pkg.vhd
+-- Descripción:
+--   Paquete principal del sistema ROM-RAM.
+--   Define constantes, tipos de datos, tipo de memoria,
+--   una función para convertir direcciones y un procedimiento
+--   para limpiar señales de control.
+-- =============================================================
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 package mem_pkg is
 
-  -- ----------------------------------------------------------
-  -- Constantes del sistema
-  -- DATA_WIDTH: ancho del dato en bits
-  -- ADDR_WIDTH: ancho de la direccion en bits
-  -- ----------------------------------------------------------
+  -- =========================================================
+  -- Constantes globales del sistema
+  -- =========================================================
+  -- DATA_WIDTH define el tamaño de cada palabra de memoria.
+  -- En este proyecto cada dato tiene 8 bits.
   constant DATA_WIDTH : integer := 8;
+
+  -- ADDR_WIDTH define el tamaño del bus de direcciones.
+  -- Con 4 bits se pueden direccionar 16 posiciones.
   constant ADDR_WIDTH : integer := 4;
 
-  -- ----------------------------------------------------------
-  -- Tipos basicos
-  -- word_t: dato de 8 bits
-  -- addr_t: direccion de 4 bits
-  -- mem_t : arreglo de 16 palabras de 8 bits
-  -- ----------------------------------------------------------
-  subtype word_t is std_logic_vector(DATA_WIDTH-1 downto 0);
-  subtype addr_t is std_logic_vector(ADDR_WIDTH-1 downto 0);
-  type    mem_t  is array (0 to 2**ADDR_WIDTH-1) of word_t;
+  -- MEM_DEPTH define la cantidad total de posiciones de memoria.
+  -- Como ADDR_WIDTH = 4, entonces MEM_DEPTH = 2^4 = 16.
+  constant MEM_DEPTH : integer := 2**ADDR_WIDTH;
 
-  -- ----------------------------------------------------------
-  -- Componente ROM sincrona
-  -- Memoria de solo lectura inicializada con datos fijos
-  -- ----------------------------------------------------------
-  component rom_sync is
-    port (
-      clk      : in  std_logic;
-      re       : in  std_logic;
-      addr     : in  addr_t;
-      data_out : out word_t
-    );
-  end component;
+  -- =========================================================
+  -- Tipos definidos para el proyecto
+  -- =========================================================
+  -- data_word representa una palabra de datos de 8 bits.
+  subtype data_word is std_logic_vector(DATA_WIDTH-1 downto 0);
 
-  -- ----------------------------------------------------------
-  -- Componente RAM sincrona
-  -- Memoria de lectura y escritura
-  -- ----------------------------------------------------------
-  component ram_sincrona is
-    generic (
-      DATA_WIDTH : positive := 8;
-      ADDR_WIDTH : positive := 4;
-      RDW_MODE   : string   := "READ_FIRST"
-    );
-    port (
-      clk      : in  std_logic;
-      rd_en    : in  std_logic;
-      wr_en    : in  std_logic;
-      addr     : in  addr_t;
-      data_in  : in  word_t;
-      data_out : out word_t
-    );
-  end component;
+  -- addr_word representa una dirección de memoria de 4 bits.
+  subtype addr_word is std_logic_vector(ADDR_WIDTH-1 downto 0);
 
-  -- ----------------------------------------------------------
-  -- Componente controlador FSM
-  -- Coordina la copia ROM->RAM y el acceso externo
-  -- ----------------------------------------------------------
-  component memory_controller is
-    port (
-      clk      : in  std_logic;
-      rst      : in  std_logic;
-      addr     : in  addr_t;
-      data_in  : in  word_t;
-      we       : in  std_logic;
-      re       : in  std_logic;
-      data_out : out word_t;
-      done     : out std_logic
-    );
-  end component;
+  -- mem_t representa una memoria de 16 posiciones,
+  -- donde cada posición almacena una palabra de 8 bits.
+  type mem_t is array (0 to MEM_DEPTH-1) of data_word;
 
-  -- ----------------------------------------------------------
-  -- Componente decodificador 7 segmentos
-  -- Convierte un byte en señales para el display fisico
-  -- ----------------------------------------------------------
-  component dec_7seg is
-  port (
-    bcd : in  integer range 0 to 9;  -- integer, no std_logic_vector
-    seg : out std_logic_vector(6 downto 0)
+  -- =========================================================
+  -- Función: addr_to_integer
+  -- =========================================================
+  -- Convierte una dirección tipo addr_word a integer.
+  -- Se usa para acceder a posiciones dentro de arreglos ROM/RAM.
+  function addr_to_integer(addr : addr_word) return integer;
+
+  -- =========================================================
+  -- Procedimiento: clear_control_signals
+  -- =========================================================
+  -- Limpia las señales principales de control.
+  -- Se usa en la FSM para dejar ROM y RAM desactivadas
+  -- cuando no se está leyendo ni escribiendo.
+  procedure clear_control_signals(
+    signal rom_re : out std_logic;
+    signal ram_we : out std_logic;
+    signal ram_re : out std_logic
   );
-end component;
 
 end package mem_pkg;
 
+-- =============================================================
+-- Cuerpo del paquete
+-- Aquí se implementan la función y el procedimiento declarados.
+-- =============================================================
+
 package body mem_pkg is
+
+  -- =========================================================
+  -- Implementación de addr_to_integer
+  -- =========================================================
+  function addr_to_integer(addr : addr_word) return integer is
+  begin
+    return to_integer(unsigned(addr));
+  end function;
+
+  -- =========================================================
+  -- Implementación de clear_control_signals
+  -- =========================================================
+  procedure clear_control_signals(
+    signal rom_re : out std_logic;
+    signal ram_we : out std_logic;
+    signal ram_re : out std_logic
+  ) is
+  begin
+    rom_re <= '0';
+    ram_we <= '0';
+    ram_re <= '0';
+  end procedure;
+
 end package body mem_pkg;

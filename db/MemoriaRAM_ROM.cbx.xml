@@ -1,6 +1,0 @@
-<?xml version="1.0" ?>
-<LOG_ROOT>
-	<PROJECT NAME="MemoriaRAM_ROM">
-		<CBX_INST_ENTRY INSTANCE_NAME="|memory_system_top|memory_controller:u_ctrl|ram_sincrona:u_ram|altsyncram:mem_rtl_0" CBX_FILE_NAME="altsyncram_aki1.tdf"/>
-	</PROJECT>
-</LOG_ROOT>
