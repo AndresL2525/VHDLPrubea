@@ -55,6 +55,7 @@ El diseño es completamente modular: incluye un paquete de tipos, componentes in
 ```
 VHDLPrubea/
 ├── README.md
+├── VHDL.pdf
 ├── dec_7seg.vhd              # Decodificador de 7 segmentos
 ├── divisor_frecuencia.vhd    # Divisor de 50 MHz a clk_lento
 ├── mem_pkg.vhd               # Paquete con constantes y tipos
