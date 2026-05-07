@@ -1,21 +1,42 @@
 -- =============================================================
--- Archivo : ram_sincrona.vhd
--- Descripción:
---   Memoria RAM síncrona de 16 posiciones x 8 bits.
+-- Archivo      : ram_sincrona.vhd
+-- Proyecto     : Sistema con Memorias ROM y RAM
+-- Universidad  : Universidad del Cauca
+-- Autor        : Camilo Andres Luna
+-- Fecha        : Mayo 2026
 --
---   La RAM permite:
---     - Escritura cuando wr_en = '1'
---     - Lectura cuando rd_en = '1'
+-- Descripcion:
+--   Memoria RAM sincrona de 16 posiciones x 8 bits.
+--   Es el destino de los datos copiados desde la ROM por la FSM.
+--   Tambien es la fuente del dato que se envia al display.
 --
---   La operación es síncrona:
---   lectura y escritura ocurren en el flanco de subida del reloj.
+--   Operaciones soportadas:
+--     Escritura : ocurre cuando wr_en = '1' en flanco de subida.
+--                 La FSM la activa en el estado S_WRITE_RAM.
+--     Lectura   : ocurre cuando rd_en = '1' en flanco de subida.
+--                 La FSM la activa en S_READ_RAM y S_READ_RAM_WAIT.
 --
---   Usa tipos y función del paquete mem_pkg:
---     - data_word
---     - addr_word
---     - mem_t
---     - addr_to_integer()
+--   Prioridad de operacion:
+--   La escritura tiene prioridad sobre la lectura. Si ambas
+--   senales estan activas al mismo tiempo, solo se escribe.
+--   En este sistema la FSM garantiza que nunca ocurren
+--   simultaneamente, pero la prioridad se mantiene por diseno.
+--
+--   Latencia de lectura:
+--   La RAM es sincrona: el dato leido no aparece en data_out
+--   en el mismo ciclo en que se activa rd_en, sino en el
+--   ciclo siguiente. Por esto la FSM incluye el estado
+--   S_READ_RAM_WAIT antes de capturar el dato en S_SHOW.
+--
+--
+--   Elementos usados del paquete mem_pkg:
+--     data_word      : tipo del dato de entrada y salida (8 bits)
+--     addr_word      : tipo de la direccion (4 bits)
+--     mem_t          : tipo del arreglo interno de la RAM
+--     MEM_DEPTH      : constante con el numero de posiciones (16)
+--     addr_to_integer: funcion para convertir addr a indice entero
 -- =============================================================
+
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -89,4 +110,4 @@ begin
   -- La salida corresponde al registro de lectura.
   data_out <= q_reg;
 
-end architecture rtl;
+end architecture rtl;	

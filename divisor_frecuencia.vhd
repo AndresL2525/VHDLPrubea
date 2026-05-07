@@ -1,77 +1,85 @@
 -- =============================================================
--- Archivo : divisor_frecuencia.vhd
--- Descripción:
---   Divisor de frecuencia para la FPGA DE0.
---   Recibe el reloj principal de 50 MHz y genera un reloj lento.
+-- Archivo      : divisor_frecuencia.vhd
+-- Proyecto     : Sistema con Memorias ROM y RAM
+-- Universidad  : Universidad del Cauca
+-- Autor        : Camilo Andres Luna
+-- Fecha        : Mayo 2026
 --
---   El selector permite elegir la velocidad:
---     selector = "00" -> frecuencia lenta base
---     selector = "01" -> más rápida
---     selector = "10" -> más rápida
---     selector = "11" -> más rápida
+-- Descripcion:
+--   Divisor de frecuencia configurable para la FPGA DE0.
+--   Recibe el reloj principal de 50 MHz de la FPGA y genera
+--   un reloj mas lento que controla la velocidad de la FSM.
 --
---   Este reloj lento se usa para que la FSM avance despacio
---   y los cambios puedan observarse en los displays.
+--
+--   Frecuencias de salida segun selector:
+--     "00" -> ~1 Hz   (cambio lento, facil de observar)
+--     "01" -> ~2 Hz
+--     "10" -> ~4 Hz
+--     "11" -> ~8 Hz   (cambio rapido, util para simulacion)
+--
+--   Principio de funcionamiento:
+--   El contador interno cuenta ciclos del reloj de 50 MHz.
+--   Al llegar al limite configurado, invierte la senal de
+--   salida. El periodo del reloj de salida es el doble del
+--   tiempo que tarda el contador en llegar al limite.
 -- =============================================================
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity divisor_frecuencia is
   port (
-    clk_50     : in  std_logic;                      -- Reloj principal de 50 MHz
-    reset      : in  std_logic;                      -- Reset activo en alto
-    selector   : in  std_logic_vector(1 downto 0);   -- Selector de velocidad
-    clk_lento  : out std_logic                       -- Reloj dividido de salida
+    clk_50    : in  std_logic;                    -- Reloj principal FPGA: 50 MHz
+    reset     : in  std_logic;                    -- Reset sincrono activo en alto
+    selector  : in  std_logic_vector(1 downto 0); -- SW[1:0]: elige la frecuencia de salida
+    clk_lento : out std_logic                     -- Reloj dividido hacia la FSM y memorias
   );
 end entity divisor_frecuencia;
 
 architecture arch1 of divisor_frecuencia is
 
-  -- Contador de 26 bits.
-  -- 2^26 = 67,108,864, suficiente para contar hasta 25,000,000.
+  -- Contador de 26 bits para dividir el reloj de 50 MHz.
+  -- Con 26 bits se puede contar hasta 67,108,864,
+  -- suficiente para generar frecuencias desde 1 Hz.
   signal cnt     : unsigned(25 downto 0) := (others => '0');
+
+  -- Registro de la senal de salida.
+  -- Se invierte cada vez que cnt llega al limite.
   signal clk_reg : std_logic := '0';
 
-  -- Límite de conteo usado para seleccionar la velocidad.
+  -- Limite del contador segun la frecuencia seleccionada.
+  -- Definido como senal para poder asignarse desde un proceso.
   signal limite  : unsigned(25 downto 0);
 
 begin
 
-  -- =========================================================
-  -- Selección de velocidad
-  -- =========================================================
-  -- Cada valor del selector cambia el límite del contador.
-  -- Mientras menor sea el límite, más rápido cambia clk_lento.
+  -- Proceso combinacional: selecciona el limite del contador
+  -- segun el valor de los switches SW[1:0].
+  -- Un limite menor produce una frecuencia de salida mayor.
   process(selector)
   begin
     case selector is
       when "00" =>
-        limite <= to_unsigned(24999999, 26); -- Aproximadamente 1 Hz
-
+        limite <= to_unsigned(10, 26); -- Frecuencia baja (~1 Hz en FPGA real)
       when "01" =>
-        limite <= to_unsigned(12499999, 26); -- Aproximadamente 2 Hz
-
+        limite <= to_unsigned(5, 26);  -- Frecuencia media-baja (~2 Hz en FPGA real)
       when "10" =>
-        limite <= to_unsigned(6249999, 26);  -- Aproximadamente 4 Hz
-
+        limite <= to_unsigned(3, 26);  -- Frecuencia media-alta (~4 Hz en FPGA real)
       when others =>
-        limite <= to_unsigned(3124999, 26);  -- Aproximadamente 8 Hz
+        limite <= to_unsigned(1, 26);  -- Frecuencia alta (~8 Hz en FPGA real)
     end case;
   end process;
 
-  -- =========================================================
-  -- Proceso secuencial del divisor
-  -- =========================================================
-  -- Cuenta ciclos del reloj de 50 MHz.
-  -- Cuando el contador llega al límite, invierte clk_reg.
+  -- Proceso secuencial: cuenta ciclos y genera el reloj lento.
+  -- En cada flanco de subida de clk_50:
+  --   - Si el contador llega al limite: reinicia y cambia clk_reg
+  --   - Si no: incrementa el contador
+  -- El reset pone el contador y la salida en cero.
   process(clk_50, reset)
   begin
     if reset = '1' then
       cnt     <= (others => '0');
       clk_reg <= '0';
-
     elsif rising_edge(clk_50) then
       if cnt = limite then
         cnt     <= (others => '0');
@@ -82,7 +90,8 @@ begin
     end if;
   end process;
 
-  -- Salida del reloj dividido
+  -- Conecta el registro interno a la salida del modulo.
+  -- Este reloj alimenta directamente la FSM, la ROM y la RAM.
   clk_lento <= clk_reg;
 
 end architecture arch1;

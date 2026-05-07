@@ -1,10 +1,28 @@
 -- =============================================================
--- Archivo : mem_pkg.vhd
--- Descripción:
---   Paquete principal del sistema ROM-RAM.
---   Define constantes, tipos de datos, tipo de memoria,
---   una función para convertir direcciones y un procedimiento
---   para limpiar señales de control.
+-- Archivo      : mem_pkg.vhd
+-- Proyecto     : Sistema con Memorias ROM y RAM
+-- Universidad  : Universidad del Cauca
+-- Autor        : Camilo Andres Luna
+-- Fecha        : Mayo 2026
+--
+-- Descripcion:
+--   Paquete central del sistema ROM-RAM.
+--   Agrupa todos los elementos compartidos entre los modulos:
+--   constantes, tipos, funcion de conversion y procedimiento
+--   de limpieza de senales.
+--
+--   Al centralizar estas definiciones en un solo paquete se
+--   garantiza que todos los modulos usan los mismos tipos y
+--   valores. Si se necesita cambiar el ancho del bus o la
+--   profundidad de la memoria, basta con modificar DATA_WIDTH
+--   o ADDR_WIDTH aqui y el cambio se propaga automaticamente
+--   a rom_sync, ram_sincrona y memory_controller.
+--
+--   Contenido del paquete:
+--     Constantes : DATA_WIDTH, ADDR_WIDTH, MEM_DEPTH
+--     Tipos      : data_word, addr_word, mem_t
+--     Funcion    : addr_to_integer
+--     Procedimiento : clear_control_signals
 -- =============================================================
 
 library ieee;
